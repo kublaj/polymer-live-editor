@@ -1,0 +1,256 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<link rel="import" href="../paper-tabs/paper-tabs.html">
+<link rel="import" href="../codemirror-textarea/codemirror-textarea.html">
+<link rel="import" href="polymer-live-editor-tab.html">
+
+<!-- 
+`polymer-live-editor` is an inline code editor and previewer supporting multiple files. 
+
+Example (notice one block inserts code inside a template and one directly edits the `htmlContent` property):
+    <polymer-live-editor src="http://localhost:3000">
+      <polymer-live-editor-tab tab-name="custom-element.html" id="customel">
+        <div slot="heading">
+          custom-element.html
+        </div>
+        <template slot="html-content"></template>
+      </polymer-live-editor-tab>
+      <polymer-live-editor-tab tab-name="index.html">
+        <div slot="heading">
+          index.html
+        </div>
+        <template slot="html-content">
+          <script src="https://polygit.org/components/webcomponentsjs/webcomponents-loader.js"></script>
+          <link rel="import" href="custom-element.html">
+          <custom-element></custom-element>
+        </template>
+      </polymer-live-editor-tab>
+    </polymer-live-editor>
+
+    <script>
+      var htmlContent = `<link rel="import"  href="https://polygit.org/components/polymer/polymer-element.html">
+        <script>
+          // Define the class for a new element called custom-element
+          class CustomElement extends Polymer.Element {
+            static get is() { return "custom-element"; }
+            constructor() {
+                super();
+                this.textContent = "I'm a custom-element.";
+              }
+          }
+          // Register the new element with the browser
+          customElements.define(CustomElement.is, CustomElement);
+        <`;
+      htmlContent += '/script>';
+      document.querySelector('#customel').htmlContent = htmlContent;
+    </script>
+
+The `polymer-live-editor` is used with as many `polymer-live-editor-tab`s as are needed for the demo. A `polymer-live-editor-tab` has one required property: `tabName`. Note that as long as the `polymer-live-editor-tab` is given a name, anything can be displaying in the tab itself. Tab content should be placed in a container with its `slot` attribute set to `heading`.
+
+Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be either set explicitly in Javascript (see the custom-element.html tab in the example) or will be computed based on the innerHTML of a template with slot `html-content` (the index.html tab in the example). 
+ -->
+
+<dom-module id='polymer-live-editor'>
+  <template>
+    <style include="iron-flex">
+      :host {
+        display: block;
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+                    0 1px 5px 0 rgba(0, 0, 0, 0.12),
+                    0 3px 1px -2px rgba(0, 0, 0, 0.2);
+      }
+
+      paper-tabs {
+        color: black;
+        --paper-tabs-selection-bar-color: black;
+      }
+
+      paper-tab {
+        font-size: 16px;
+      }
+
+      iron-pages {
+        background: white;
+        width: 100%;
+        height: 100%;
+      }
+
+      paper-button {
+        color: white;
+        background: #1e88e5;  /* blue-600 */
+        font-size: 13px;
+        vertical-align: middle;
+      }
+
+      .tabstrip a {
+        text-decoration: none;
+      }
+
+      iframe {
+        width: 100%;
+        overflow: hidden;
+      }
+
+      .results {
+        box-sizing: border-box;
+        background: white;
+        width: 100%;
+        padding: 20px;
+        margin: 0;
+        background-color: #fafafa;
+        border-top: 1px solid #e0e0e0;
+      }
+
+    </style>
+
+    <div class="tabstrip layout horizontal center">
+      <paper-tabs selected="{{selected}}" class="flex" selectable="polymer-live-editor-tab">
+        <slot></slot>
+      </paper-tabs>
+    </div>
+
+     <codemirror-textarea value="{{value}}"></codemirror-textarea> 
+     <div class="results">
+       <iframe id="frame" src$="[[src]]" scrolling="no" frameborder="0" height$="[[height]]"></iframe>
+     </div>
+
+  </template>
+
+  <script>
+  Polymer({
+    is: 'polymer-live-editor',
+
+    properties: {
+      /*
+       * Index of initially selected tab
+       */
+      selected: {
+        type: Number,
+        observer: '_selectedChanged'
+      },
+      /*
+       * Content to display in editor
+       */
+      htmlContent: {
+        type: String,
+        observer: '_htmlContentChanged'
+      },
+      /*
+       * Height of iframe displaying preview
+       */
+      height: {
+        type: Number
+      },
+      /*
+       * URL for server where user code runs
+       */
+      src: {
+        type: String
+      }
+    },
+
+    listeners: {
+      'html-content-changed': '_onHtmlContentChanged',
+      'mirror-changed': '_onMirrorChanged'
+    },
+
+    ready: function() {
+      this._htmlContents = {};
+      this._demoHeight = this.height;
+      window.addEventListener('message', this._onMessage.bind(this));
+      this.$.frame.onload = this._onLoad.bind(this);
+      let childTabs = Polymer.dom(this).querySelectorAll('polymer-live-editor-tab');
+      childTabs.forEach(function (tab) {
+        this._htmlContents[tab.tabName] = tab.htmlContent;
+      }.bind(this));
+      this.selected = 0;
+    },
+
+    _onLoad: function() {
+      this._initIframeContent();
+    },
+
+    _htmlContentChanged: function() {
+      this._htmlContents[this._getSelectedTabName()] = this.htmlContent;
+      this._postMessage({codeObj: this._htmlContents});
+    },
+
+    _onMirrorChanged: function(event) {
+      this._fromEditor = true;
+      this.htmlContent = event.detail.htmlContent;
+      let selectedTab = this._getSelectedTab();
+      selectedTab.fire('html-contents-changed', {htmlContent: this.htmlContent});
+    },
+
+    _onHtmlContentChanged: function(event) {
+      this._htmlContents[event.detail.tabName] = event.detail.content;
+      this.htmlContent = this._htmlContents[this._getSelectedTabName()];
+      this._updateMirror();
+    },
+
+    _selectedChanged: function() {
+      if (!this._htmlContents)
+        return;
+      this.htmlContent = this._htmlContents[this._getSelectedTabName()];
+      this._fromEditor = false;
+      this._updateMirror();
+    },
+
+    _postMessage: function(content) {  
+      if (!this._frameReady)
+        return;
+      this.debounce('postMessage', _ => { this.$.frame.contentWindow.postMessage(content, this.src); }, 400);
+    },
+
+    _onMessage: function(event) {
+      if (event.data.ready) {
+        this._initIframeContent();
+      } else {
+        this._updateFrameHeight(event.data.height);
+      }
+    },
+
+    _updateMirror: function() {
+      if (!this._fromEditor) 
+        this.value = this.htmlContent;
+      this._fromEditor = false;
+    },
+
+    _initIframeContent: function() {
+      this._frameReady = true;
+      this.$.frame.style.height = this._demoHeight;
+      this._htmlContentChanged();
+    },
+
+    _updateFrameHeight: function(measuredHeight) {
+      if (!this._frameReady || this.height)
+        return;
+      
+      let oldHeight = this._demoHeight;
+      let newHeight = Math.max(oldHeight, measuredHeight);
+      if (newHeight !== oldHeight) {
+        this._demoHeight = newHeight;
+        this.$.frame.style.height = this._demoHeight.toString() + 'px';
+      }
+    },
+
+    _getSelectedTab: function() {
+      var childTabs = Polymer.dom(this).querySelectorAll('polymer-live-editor-tab');
+      return childTabs[this.selected];
+    },
+
+    _getSelectedTabName: function() {
+      return this._getSelectedTab().tabName;
+    }
+
+  });
+  </script>
+</dom-module>
+

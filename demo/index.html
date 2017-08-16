@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>polymer-live-editor demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../polymer-live-editor.html">
+
+    <custom-style>
+      <style is="custom-style" include="demo-pages-shared-styles">
+      </style>
+    </custom-style>
+  </head>
+  <body>
+    <div class="vertical-section-container centered">
+      <h3>Basic polymer-live-editor demo</h3>
+      <demo-snippet>
+        <template>
+          <polymer-live-editor src="http://localhost:3000">
+            <polymer-live-editor-tab tab-name="custom-element.html" id="customel">
+              <div slot="heading">
+                custom-element.html
+              </div>
+              <template slot="html-content"></template>
+            </polymer-live-editor-tab>
+            <polymer-live-editor-tab tab-name="index.html">
+              <div slot="heading">
+                index.html
+              </div>
+              <template slot="html-content">
+<script src="https://polygit.org/components/webcomponentsjs/webcomponents-loader.js"></script>
+<link rel="import" href="custom-element.html">
+<custom-element></custom-element>
+               </template>
+            </polymer-live-editor-tab>
+          </polymer-live-editor>
+       
+      
+          <script>
+            var htmlContent = `<link rel="import"  href="https://polygit.org/components/polymer/polymer-element.html">
+
+<script>
+  // Define the class for a new element called custom-element
+  class CustomElement extends Polymer.Element {
+    static get is() { return "custom-element"; }
+    constructor() {
+        super();
+        this.textContent = "I'm a custom-element.";
+      }
+  }
+  // Register the new element with the browser
+  customElements.define(CustomElement.is, CustomElement);
+<`;
+            htmlContent += '/script>';
+            document.querySelector('#customel').htmlContent = htmlContent;
+          </script>
+        </template>
+      </demo-snippet>
+    </div>
+  </body>
+</html>
