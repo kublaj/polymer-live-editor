@@ -168,7 +168,8 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
       this.$.frame.onload = this._onLoad.bind(this);
       let childTabs = Polymer.dom(this).querySelectorAll('polymer-live-editor-tab');
       childTabs.forEach(function (tab) {
-        this._htmlContents[tab.tabName] = tab.htmlContent;
+        if (tab.tabName)
+          this._htmlContents[tab.tabName] = tab.htmlContent;
       }.bind(this));
       this.selected = 0;
     },
@@ -190,9 +191,11 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
     },
 
     _onHtmlContentChanged: function(event) {
-      this._htmlContents[event.detail.tabName] = event.detail.content;
-      this.htmlContent = this._htmlContents[this._getSelectedTabName()];
-      this._updateMirror();
+      if (event.detail.content) {
+        this._htmlContents[event.detail.tabName] = event.detail.content;
+        this.htmlContent = this._htmlContents[this._getSelectedTabName()];
+        this._updateMirror();
+      }
     },
 
     _selectedChanged: function() {

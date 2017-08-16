@@ -212,7 +212,7 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
       },
 
       _htmlContentChanged: function() {   
-        if (!this._fromSlot) {
+        if (!this._fromSlot && this.template) {
           this.template.innerHTML = this.htmlContent;         
         } 
         if (!this._fromTabs)
