@@ -144,10 +144,13 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
         observer: '_displayedContentChanged'
       },
       /**
-       * Height of iframe displaying preview
+       * Height of iframe displaying preview. Can be an integer
+       * representing the number of pixels or a string containing a
+       * CSS length value (e.g. '100px').
        */
       height: {
-        type: Number
+        type: String,
+        value: '100px'
       },
       /**
        * URL for server where user code runs
@@ -163,7 +166,6 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
     },
 
     ready: function() {
-      this._demoHeight = this.height;
       window.addEventListener('message', this._onMessage.bind(this));
       this.$.frame.onload = this._onLoad.bind(this);
     },
@@ -214,11 +216,7 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
     },
 
     _onMessage: function(event) {
-      if (event.data.ready) {
-        this._initIframeContent();
-      } else {
-        this._updateFrameHeight(event.data.height);
-      }
+      if (event.data.ready) this._initIframeContent();
     },
 
     _updateMirror: function() {
@@ -230,19 +228,7 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
 
     _initIframeContent: function() {
       this._frameReady = true;
-      this.$.frame.style.height = this._demoHeight;
       this._displayedContentChanged();
-    },
-
-    _updateFrameHeight: function(measuredHeight) {
-      if (!this._frameReady || this.height) return;
-      
-      var oldHeight = this._demoHeight;
-      var newHeight = Math.max(oldHeight, measuredHeight);
-      if (newHeight !== oldHeight) {
-        this._demoHeight = newHeight;
-        this.$.frame.style.height = this._demoHeight.toString() + 'px';
-      }
     },
 
     _getSelectedTab: function() {
