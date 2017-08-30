@@ -22,7 +22,7 @@
       <h3>Basic polymer-live-editor demo</h3>
       <demo-snippet>
         <template>
-          <polymer-live-editor src="http://35.202.214.166:8080">
+          <polymer-live-editor src="http://localhost:3000">
             <polymer-live-editor-tab tab-name="custom-element.html" id="customel">
               <div slot="heading">
                 custom-element.html
@@ -33,6 +33,7 @@
               <div slot="heading">
                 index.html
               </div>
+              <!-- An editor tab's htmlContent can be added in the `html-content` template -->
               <template slot="html-content">
 <script src="https://polygit.org/components/webcomponentsjs/webcomponents-loader.js"></script>
 <link rel="import" href="custom-element.html">
@@ -40,9 +41,9 @@
                </template>
             </polymer-live-editor-tab>
           </polymer-live-editor>
-       
-      
           <script>
+            // An editor tab's `htmlContent` property can also be set in JavaScript
+            // This will update that tab's `html-content` template automatically
             var htmlContent = `<link rel="import"  href="https://polygit.org/components/polymer/polymer-element.html">
 
 <script>

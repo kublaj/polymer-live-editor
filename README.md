@@ -1,10 +1,18 @@
-# \<polymer-live-editor\>
+# <polymer-live-editor>
 
-`polymer-live-editor` is an inline code editor and previewer supporting multiple files. 
+`polymer-live-editor` is an inline code editor with a sandboxed previewer supporting multiple files. 
+
+The editor uses a `codemirror-textarea` element, which is a wrapper around <a href="https://codemirror.net/">CodeMirror</a>.
+
+User code output is displayed in an `iframe`. It is left up to the user to specify a server
+with an instance of `polymer-live-editor-server` running, using the `polymer-live-editor`'s `src` attribute.
+
+For more information on running the `polymer-live-editor-server`, please visit the 
+<a href="https://github.com/PolymerLabs/polymer-live-editor-server">`polymer-live-editor-server` repo</a>.
 
 Example (notice one block inserts code inside a template and one directly edits the `htmlContent` property):
 ```html
-<polymer-live-editor src="http://localhost:3000">
+<polymer-live-editor src="https://35.202.214.166:8080">
   <polymer-live-editor-tab tab-name="custom-element.html" id="customel">
     <div slot="heading">
       custom-element.html
