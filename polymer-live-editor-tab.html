@@ -75,9 +75,6 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
         overflow: hidden;
         cursor: pointer;
         vertical-align: middle;
-
-        @apply --paper-font-common-base;
-        @apply --paper-tab;
       }
 
       :host(:focus) {
@@ -95,13 +92,10 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
         @apply --layout-horizontal;
         @apply --layout-center-center;
         @apply --layout-flex-auto;
-        @apply --paper-tab-content;
       }
 
       :host(:not(.iron-selected)) > .tab-content {
         opacity: 0.8;
-
-        @apply --paper-tab-content-unselected;
       }
 
       :host(:focus) .tab-content {
