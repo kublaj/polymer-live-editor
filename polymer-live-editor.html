@@ -128,27 +128,28 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
     is: 'polymer-live-editor',
 
     properties: {
-      /*
+      /**
        * Index of initially selected tab
        */
       selected: {
         type: Number,
         observer: '_selectedChanged'
       },
-      /*
-       * Content to display in editor
+      /**
+       * Content to display in editor. Setting htmlContent updates
+       * the template and htmlContent of the selected tab.
        */
-      htmlContent: {
+      displayedContent: {
         type: String,
-        observer: '_htmlContentChanged'
+        observer: '_displayedContentChanged'
       },
-      /*
+      /**
        * Height of iframe displaying preview
        */
       height: {
         type: Number
       },
-      /*
+      /**
        * URL for server where user code runs
        */
       src: {
@@ -157,19 +158,20 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
     },
 
     listeners: {
-      'html-content-changed': '_onHtmlContentChanged',
+      'tab-content-changed': '_onTabContentChanged',
       'mirror-changed': '_onMirrorChanged'
     },
 
     ready: function() {
-      this._htmlContents = {};
+      this._fileContents = {};
       this._demoHeight = this.height;
       window.addEventListener('message', this._onMessage.bind(this));
       this.$.frame.onload = this._onLoad.bind(this);
-      let childTabs = Polymer.dom(this).querySelectorAll('polymer-live-editor-tab');
+      var childTabs = Polymer.dom(this).querySelectorAll('polymer-live-editor-tab');
       childTabs.forEach(function (tab) {
-        if (tab.tabName)
-          this._htmlContents[tab.tabName] = tab.htmlContent;
+        if (tab.tabName) {
+          this._fileContents[tab.tabName] = tab.htmlContent;
+        }
       }.bind(this));
       this.selected = 0;
     },
@@ -178,38 +180,36 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
       this._initIframeContent();
     },
 
-    _htmlContentChanged: function() {
-      this._htmlContents[this._getSelectedTabName()] = this.htmlContent;
-      this._postMessage({codeObj: this._htmlContents});
+    _displayedContentChanged: function() {
+      this._fileContents[this._getSelectedTabName()] = this.displayedContent;
+      this._postMessage({codeObj: this._fileContents});
     },
 
     _onMirrorChanged: function(event) {
       this._fromEditor = true;
-      this.htmlContent = event.detail.htmlContent;
-      let selectedTab = this._getSelectedTab();
-      selectedTab.fire('html-contents-changed', {htmlContent: this.htmlContent});
+      this.displayedContent = event.detail.htmlContent;
+      var selectedTab = this._getSelectedTab();
+      selectedTab.fire('file-contents-changed', {htmlContent: this.displayedContent});
     },
 
-    _onHtmlContentChanged: function(event) {
+    _onTabContentChanged: function(event) {
       if (event.detail.content) {
-        this._htmlContents[event.detail.tabName] = event.detail.content;
-        this.htmlContent = this._htmlContents[this._getSelectedTabName()];
+        this._fileContents[event.detail.tabName] = event.detail.content;
+        this.displayedContent = this._fileContents[this._getSelectedTabName()];
         this._updateMirror();
       }
     },
 
     _selectedChanged: function() {
-      if (!this._htmlContents)
-        return;
-      this.htmlContent = this._htmlContents[this._getSelectedTabName()];
+      if (!this._fileContents) return;
+      this.displayedContent = this._fileContents[this._getSelectedTabName()];
       this._fromEditor = false;
       this._updateMirror();
     },
 
     _postMessage: function(content) {  
-      if (!this._frameReady)
-        return;
-      this.debounce('postMessage', _ => { this.$.frame.contentWindow.postMessage(content, this.src); }, 400);
+      if (!this._frameReady) return;
+      this.debounce('postMessage', function () { this.$.frame.contentWindow.postMessage(content, this.src); }.bind(this), 400);
     },
 
     _onMessage: function(event) {
@@ -221,23 +221,23 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
     },
 
     _updateMirror: function() {
-      if (!this._fromEditor) 
-        this.value = this.htmlContent;
+      if (!this._fromEditor) {
+        this.value = this.displayedContent;
+      }
       this._fromEditor = false;
     },
 
     _initIframeContent: function() {
       this._frameReady = true;
       this.$.frame.style.height = this._demoHeight;
-      this._htmlContentChanged();
+      this._displayedContentChanged();
     },
 
     _updateFrameHeight: function(measuredHeight) {
-      if (!this._frameReady || this.height)
-        return;
+      if (!this._frameReady || this.height) return;
       
-      let oldHeight = this._demoHeight;
-      let newHeight = Math.max(oldHeight, measuredHeight);
+      var oldHeight = this._demoHeight;
+      var newHeight = Math.max(oldHeight, measuredHeight);
       if (newHeight !== oldHeight) {
         this._demoHeight = newHeight;
         this.$.frame.style.height = this._demoHeight.toString() + 'px';
@@ -250,7 +250,8 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
     },
 
     _getSelectedTabName: function() {
-      return this._getSelectedTab().tabName;
+      var selectedTab = this._getSelectedTab();
+      return selectedTab.tabName;
     }
 
   });
