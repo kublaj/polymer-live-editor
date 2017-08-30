@@ -150,10 +150,6 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
 
       },
 
-      observers: [
-        '_onSlotChange(template.innerHTML)'
-      ],
-
       hostAttributes: {
         role: 'tab'
       },
@@ -171,8 +167,9 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
           var nodes  = slot.assignedNodes ? slot.assignedNodes({flatten: true}) : slot.getDistributedNodes();
           this.template = nodes.length ? nodes[0] : null;
           if (this.template && this.template.content) {
+            this._htmlContentObserver.disconnect();
             this._htmlContentObserver.observe(this.template.content, {attributes: true, childList: true, subtree: true});
-            this._htmlContentChanged();
+            this._onSlotChange();
           }
         }.bind(this));
       },
@@ -193,9 +190,9 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
         this.htmlContent = event.detail.htmlContent;
       },
 
-      _htmlContentChanged: function() {  
+      _htmlContentChanged: function() { 
         if (this._fromTabs && this.template) {
-          this.template.innerHTML = this.htmlContent;         
+          this.template.innerHTML = this.htmlContent;  
         } 
         if (this._fromSlot) {
           this.fire('tab-content-changed', {content: this.htmlContent, tabName: this.tabName});

@@ -136,14 +136,6 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
         value: 'index.html'
       },
       /**
-       * Content to display in editor. Setting htmlContent updates
-       * the template and htmlContent of the selected tab.
-       */
-      displayedContent: {
-        type: String,
-        observer: '_displayedContentChanged'
-      },
-      /**
        * Height of iframe displaying preview. Can be an integer
        * representing the number of pixels or a string containing a
        * CSS length value (e.g. '100px').
@@ -183,7 +175,7 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
       return fileContents;
     },
 
-    _displayedContentChanged: function() {
+    _updateFrame: function() {
       this._postMessage({codeObj: this._fileContents});
     },
 
@@ -199,6 +191,7 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
     _onTabContentChanged: function(event) {
       if (event.detail.content) {
         this.displayedContent = this._fileContents[this.selectedTabName];
+        this._updateFrame();
         this._updateMirror();
       }
     },
@@ -228,7 +221,7 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
 
     _initIframeContent: function() {
       this._frameReady = true;
-      this._displayedContentChanged();
+      this._updateFrame();
     },
 
     _getSelectedTab: function() {
