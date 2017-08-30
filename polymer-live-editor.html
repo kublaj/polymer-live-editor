@@ -163,16 +163,9 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
     },
 
     ready: function() {
-      this._fileContents = {};
       this._demoHeight = this.height;
       window.addEventListener('message', this._onMessage.bind(this));
       this.$.frame.onload = this._onLoad.bind(this);
-      var childTabs = Polymer.dom(this).querySelectorAll('polymer-live-editor-tab');
-      childTabs.forEach(function (tab) {
-        if (tab.tabName) {
-          this._fileContents[tab.tabName] = tab.htmlContent;
-        }
-      }.bind(this));
       this.selected = 0;
     },
 
@@ -180,8 +173,16 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
       this._initIframeContent();
     },
 
+    get _fileContents() {
+      var fileContents = {};
+      var childTabs = Polymer.dom(this).querySelectorAll('polymer-live-editor-tab');
+      childTabs.forEach(function(tab) {
+        fileContents[tab.tabName] = tab.htmlContent;
+      }, this);
+      return fileContents;
+    },
+
     _displayedContentChanged: function() {
-      this._fileContents[this._getSelectedTabName()] = this.displayedContent;
       this._postMessage({codeObj: this._fileContents});
     },
 
@@ -194,7 +195,6 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
 
     _onTabContentChanged: function(event) {
       if (event.detail.content) {
-        this._fileContents[event.detail.tabName] = event.detail.content;
         this.displayedContent = this._fileContents[this._getSelectedTabName()];
         this._updateMirror();
       }
