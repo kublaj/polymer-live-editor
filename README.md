@@ -1,6 +1,9 @@
 # <polymer-live-editor>
 
-`polymer-live-editor` is an inline code editor with a sandboxed previewer supporting multiple files. 
+`<polymer-live-editor>` is an inline code editor with a sandboxed previewer supporting multiple files. 
+
+`<polymer-live-editor>` assumes an `index.html` file is among those in the editor. Use HTML imports
+to link files to each other. 
 
 The editor uses a `codemirror-textarea` element, which is a wrapper around <a href="https://codemirror.net/">CodeMirror</a>.
 
