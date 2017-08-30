@@ -165,10 +165,10 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
         this._templateObserver = Polymer.dom(this.$.tabcontent).observeNodes(function(mutations) {
           var slot = Polymer.dom(this.$.tabcontent); 
           var nodes  = slot.assignedNodes ? slot.assignedNodes({flatten: true}) : slot.getDistributedNodes();
-          this.template = nodes.length ? nodes[0] : null;
-          if (this.template && this.template.content) {
+          this._template = nodes.length ? nodes[0] : null;
+          if (this._template && this._template.content) {
             this._htmlContentObserver.disconnect();
-            this._htmlContentObserver.observe(this.template.content, {attributes: true, childList: true, subtree: true});
+            this._htmlContentObserver.observe(this._template.content, {attributes: true, childList: true, subtree: true});
             this._onSlotChange();
           }
         }.bind(this));
@@ -180,9 +180,9 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
       },
 
       _onSlotChange: function() { 
-        if (!this.template || !this.template.innerHTML) return;
+        if (!this._template || !this._template.innerHTML) return;
         this._fromSlot = true;
-        this.htmlContent = this.template.innerHTML;
+        this.htmlContent = this._template.innerHTML;
       },
 
       _onFileContentsChanged: function(event) {
@@ -191,8 +191,8 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
       },
 
       _htmlContentChanged: function() { 
-        if (this._fromTabs && this.template) {
-          this.template.innerHTML = this.htmlContent;  
+        if (this._fromTabs && this._template) {
+          this._template.innerHTML = this.htmlContent;  
         } 
         if (this._fromSlot) {
           this.fire('tab-content-changed', {content: this.htmlContent, tabName: this.tabName});
