@@ -3,7 +3,7 @@
   "description": "Inline code editor and previewer supporting multiple files",
   "main": "polymer-live-editor.html",
   "dependencies": {
-    "polymer": "Polymer/polymer#1 - 2",
+    "polymer": "Polymer/polymer#1.9 - 2",
     "iron-behaviors": "1 - 2",
     "iron-flex-layout": "1 - 2",
     "paper-behaviors": "1 - 2",
@@ -13,8 +13,5 @@
     "iron-demo-helpers": "PolymerElements/iron-demo-helpers#1 - 2",
     "web-component-tester": "Polymer/web-component-tester#^6.0.0",
     "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0"
-  },
-  "resolutions": {
-    "polymer": "#1 - 2"
   }
 }
