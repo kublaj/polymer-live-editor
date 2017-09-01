@@ -22,30 +22,30 @@
       <h3>Basic polymer-live-editor demo</h3>
       <demo-snippet>
         <template>
-          <polymer-live-editor src="https://localhost:3000" selected-tab-name="custom-element.html">
-            <polymer-live-editor-tab tab-name="custom-element.html" id="customel">
+          <polymer-live-editor src="https://localhost:3000" selected-file-name="custom-element.html">
+            <polymer-live-editor-file file-name="custom-element.html" id="customel">
               <div slot="heading">
                 custom-element.html
               </div>
-              <template slot="html-content"></template>
-            </polymer-live-editor-tab>
-            <polymer-live-editor-tab tab-name="index.html">
+              <template slot="file-content"></template>
+            </polymer-live-editor-file>
+            <polymer-live-editor-file file-name="index.html">
               <div slot="heading">
                 index.html
               </div>
-              <!-- An editor tab's htmlContent can be added in the `html-content` template -->
-              <template slot="html-content">
+              <!-- An editor file's fileContent can be added in the `file-content` template -->
+              <template slot="file-content">
 <script src="/bower_components/webcomponentsjs/webcomponents-loader.js"></script>
 <link rel="import" href="custom-element.html">
 <custom-element></custom-element>
                </template>
-            </polymer-live-editor-tab>
+            </polymer-live-editor-file>
           </polymer-live-editor>
           <script>
-            // An editor tab's `htmlContent` property can also be set in JavaScript
-            // This will update that tab's `html-content` template automatically
-            var htmlContent = `<!-- TODO: define <custom-element> here -->`;
-            document.querySelector('#customel').htmlContent = htmlContent;
+            // An editor file's `fileContent` property can also be set in JavaScript
+            // This will update that file's `file-content` template automatically
+            var fileContent = `<!-- TODO: define <custom-element> here -->`;
+            document.querySelector('#customel').fileContent = fileContent;
           </script>
         </template>
       </demo-snippet>

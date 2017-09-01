@@ -15,30 +15,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../paper-behaviors/paper-ripple-behavior.html">
 
 <!-- 
-`polymer-live-editor-tab` behaves similarly to `paper-tab`. It should be used in conjunction with `polymer-live-editor`.
+`polymer-live-editor-file` handles file selection for `polymer-live-editor`.
 
-Example (notice one block inserts code inside a template and one directly edits the `htmlContent` property):
+Example (notice one block inserts code inside a template and one directly edits the `fileContent` property):
   <polymer-live-editor src="http://localhost:3000">
-    <polymer-live-editor-tab tab-name="custom-element.html" id="customel">
+    <polymer-live-editor-file file-name="custom-element.html" id="customel">
       <div slot="heading">
         custom-element.html
       </div>
-      <template slot="html-content"></template>
-    </polymer-live-editor-tab>
-    <polymer-live-editor-tab tab-name="index.html">
+      <template slot="file-content"></template>
+    </polymer-live-editor-file>
+    <polymer-live-editor-file file-name="index.html">
       <div slot="heading">
         index.html
       </div>
-      <template slot="html-content">
+      <template slot="file-content">
         <script src="/bower_components/webcomponentsjs/webcomponents-loader.js"></script>
         <link rel="import" href="custom-element.html">
         <custom-element></custom-element>
       </template>
-    </polymer-live-editor-tab>
+    </polymer-live-editor-file>
   </polymer-live-editor>
 
   <script>
-    var htmlContent = `<link rel="import"  href="/bower_components/polymer/polymer-element.html">
+    var fileContent = `<link rel="import"  href="/bower_components/polymer/polymer-element.html">
       <script>
         // Define the class for a new element called custom-element
         class CustomElement extends Polymer.Element {
@@ -51,16 +51,16 @@ Example (notice one block inserts code inside a template and one directly edits 
         // Register the new element with the browser
         customElements.define(CustomElement.is, CustomElement);
       <\/script>`;
-    document.querySelector('#customel').htmlContent = htmlContent;
+    document.querySelector('#customel').fileContent = fileContent;
   </script>
 
 
-The `polymer-live-editor` is used with as many `polymer-live-editor-tab`s as are needed for the demo. A `polymer-live-editor-tab` has one required property: `tabName`. Note that as long as the `polymer-live-editor-tab` is given a name, anything can be displaying in the tab itself. Tab content should be placed in a container with its `slot` attribute set to `heading`.
+The `polymer-live-editor` is used with as many `polymer-live-editor-file`s as are needed for the demo. A `polymer-live-editor-file` has one required property: `fileName`. Note that as long as the `polymer-live-editor-file` is given a name, anything can be displaying in the file itself. File content should be placed in a container with its `slot` attribute set to `heading`.
 
-Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be either set explicitly in Javascript (see the custom-element.html tab in the example) or will be computed based on the innerHTML of a template with slot `html-content` (the index.html tab in the example). 
+Each `polymer-live-editor-file` has a property called `fileContent`, which can be either set explicitly in Javascript (see the custom-element.html file in the example) or will be computed based on the innerHTML of a template with slot `file-content` (the index.html file in the example). 
  -->
 
-<dom-module id="polymer-live-editor-tab">
+<dom-module id="polymer-live-editor-file">
   <template>
     <style>
       :host {
@@ -84,7 +84,7 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
         padding: 0;
       }
 
-      .tab-content {
+      .file-content {
         height: 100%;
         transform: translateZ(0);
         transition: opacity 0.1s cubic-bezier(0.4, 0.0, 1, 1);
@@ -93,31 +93,31 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
         @apply --layout-flex-auto;
       }
 
-      :host(:not(.iron-selected)) > .tab-content {
+      :host(:not(.iron-selected)) > .file-content {
         opacity: 0.8;
       }
 
-      :host(:focus) .tab-content {
+      :host(:focus) .file-content {
         opacity: 1;
         font-weight: 700;
       }
 
-      .tab-content > ::content > a {
+      .file-content > ::content > a {
         @apply --layout-flex-auto;
 
         height: 100%;
       }
     </style>
 
-    <div class="tab-content">
+    <div class="file-content">
       <slot id="heading" name="heading"></slot>
     </div>
-    <slot id="tabcontent" name="html-content"></slot>
+    <slot id="filecontent" name="file-content"></slot>
   </template>
 
   <script>
     Polymer({
-      is: 'polymer-live-editor-tab',
+      is: 'polymer-live-editor-file',
 
       behaviors: [
         Polymer.IronControlState,
@@ -128,16 +128,16 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
       properties: {
 
         /**
-         * Content of the `html-content` slot. Can be set programmatically or in HTML. 
+         * Content of the `file-content` slot. Can be set programmatically or in HTML. 
          */
-        htmlContent: {
+        fileContent: {
           type: String,
-          observer: '_htmlContentChanged'
+          observer: '_fileContentChanged'
         },
         /**
-         * Name of tab, required for housekeeping.
+         * Name of file, required for housekeeping.
          */
-        tabName: {
+        fileName: {
           type: String
         }
 
@@ -154,43 +154,43 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
 
       attached: function() {
         this._updateNoink();
-        this._htmlContentObserver = new MutationObserver(this._onSlotChange.bind(this));        
-        this._templateObserver = Polymer.dom(this.$.tabcontent).observeNodes(function(mutations) {
-          var slot = Polymer.dom(this.$.tabcontent); 
+        this._fileContentObserver = new MutationObserver(this._onSlotChange.bind(this));        
+        this._templateObserver = Polymer.dom(this.$.filecontent).observeNodes(function(mutations) {
+          var slot = Polymer.dom(this.$.filecontent); 
           var nodes  = slot.assignedNodes ? slot.assignedNodes({flatten: true}) : slot.getDistributedNodes();
           this._template = nodes.length ? nodes[0] : null;
           if (this._template && this._template.content) {
-            this._htmlContentObserver.disconnect();
-            this._htmlContentObserver.observe(this._template.content, {attributes: true, childList: true, subtree: true});
+            this._fileContentObserver.disconnect();
+            this._fileContentObserver.observe(this._template.content, {attributes: true, childList: true, subtree: true});
             this._onSlotChange();
           }
         }.bind(this));
       },
 
       detached: function() {
-        this._htmlContentObserver.disconnect();
-        Polymer.dom(this.$.tabcontent).unobserveNodes(this._templateObserver);
+        this._fileContentObserver.disconnect();
+        Polymer.dom(this.$.filecontent).unobserveNodes(this._templateObserver);
       },
 
       _onSlotChange: function() { 
         if (!this._template || !this._template.innerHTML) return;
         this._fromSlot = true;
-        this.htmlContent = this._template.innerHTML;
+        this.fileContent = this._template.innerHTML;
       },
 
       _onFileContentsChanged: function(event) {
-        this._fromTabs = true;
-        this.htmlContent = event.detail.htmlContent;
+        this._fromEditor = true;
+        this.fileContent = event.detail.fileContent;
       },
 
-      _htmlContentChanged: function() { 
-        if (this._fromTabs && this._template) {
-          this._template.innerHTML = this.htmlContent;  
+      _fileContentChanged: function() { 
+        if (this._fromEditor && this._template) {
+          this._template.innerHTML = this.fileContent;  
         } 
         if (this._fromSlot) {
-          this.fire('tab-content-changed', {content: this.htmlContent, tabName: this.tabName});
+          this.fire('file-content-changed', {content: this.fileContent, fileName: this.fileName});
         }
-        this._fromTabs = false;
+        this._fromEditor = false;
         this._fromSlot = false;       
       },
 

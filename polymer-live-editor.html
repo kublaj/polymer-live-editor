@@ -9,33 +9,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 <link rel="import" href="../paper-tabs/paper-tabs.html">
 <link rel="import" href="../codemirror-textarea/codemirror-textarea.html">
-<link rel="import" href="polymer-live-editor-tab.html">
+<link rel="import" href="polymer-live-editor-file.html">
 
 <!-- 
 `polymer-live-editor` is an inline code editor and previewer supporting multiple files. 
 
-Example (notice one block inserts code inside a template and one directly edits the `htmlContent` property):
+Example (notice one block inserts code inside a template and one directly edits the `fileContent` property):
     <polymer-live-editor src="http://localhost:3000">
-      <polymer-live-editor-tab tab-name="custom-element.html" id="customel">
+      <polymer-live-editor-file file-name="custom-element.html" id="customel">
         <div slot="heading">
           custom-element.html
         </div>
-        <template slot="html-content"></template>
-      </polymer-live-editor-tab>
-      <polymer-live-editor-tab tab-name="index.html">
+        <template slot="file-content"></template>
+      </polymer-live-editor-file>
+      <polymer-live-editor-file file-name="index.html">
         <div slot="heading">
           index.html
         </div>
-        <template slot="html-content">
+        <template slot="file-content">
           <script src="/bower_components/webcomponentsjs/webcomponents-loader.js"></script>
           <link rel="import" href="custom-element.html">
           <custom-element></custom-element>
         </template>
-      </polymer-live-editor-tab>
+      </polymer-live-editor-file>
     </polymer-live-editor>
 
     <script>
-      var htmlContent = `<link rel="import"  href="/bower_components/polymer/polymer-element.html">
+      var fileContent = `<link rel="import"  href="/bower_components/polymer/polymer-element.html">
         <script>
           // Define the class for a new element called custom-element
           class CustomElement extends Polymer.Element {
@@ -48,12 +48,12 @@ Example (notice one block inserts code inside a template and one directly edits 
           // Register the new element with the browser
           customElements.define(CustomElement.is, CustomElement);
         <\/script>`;
-      document.querySelector('#customel').htmlContent = htmlContent;
+      document.querySelector('#customel').fileContent = fileContent;
     </script>
 
-The `polymer-live-editor` is used with as many `polymer-live-editor-tab`s as are needed for the demo. A `polymer-live-editor-tab` has one required property: `tabName`. Note that as long as the `polymer-live-editor-tab` is given a name, anything can be displaying in the tab itself. Tab content should be placed in a container with its `slot` attribute set to `heading`.
+The `polymer-live-editor` is used with as many `polymer-live-editor-file`s as are needed for the demo. A `polymer-live-editor-file` has one required property: `fileName`. Note that as long as the `polymer-live-editor-file` is given a name, anything can be displayed in the file itself. File content should be placed in a container with its `slot` attribute set to `heading`.
 
-Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be either set explicitly in Javascript (see the custom-element.html tab in the example) or will be computed based on the innerHTML of a template with slot `html-content` (the index.html tab in the example). 
+Each `polymer-live-editor-file` has a property called `fileContent`, which can be either set explicitly in Javascript (see the custom-element.html file in the example) or will be computed based on the innerHTML of a template with slot `file-content` (the index.html file in the example). 
  -->
 
 <dom-module id='polymer-live-editor'>
@@ -93,7 +93,7 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
     </style>
 
     <div class="tabstrip layout horizontal center">
-      <paper-tabs id="demotabs" selected="{{selectedTabName}}" attr-for-selected="tab-name" class="flex" selectable="polymer-live-editor-tab">
+      <paper-tabs id="demofiles" selected="{{selectedFileName}}" attr-for-selected="file-name" class="flex" selectable="polymer-live-editor-file">
         <slot></slot>
       </paper-tabs>
     </div>
@@ -111,11 +111,11 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
 
     properties: {
       /**
-       * Name of initially selected tab
+       * Name of initially selected file
        */
-      selectedTabName: {
+      selectedFileName: {
         type: String,
-        observer: '_selectedTabNameChanged',
+        observer: '_selectedFileNameChanged',
         value: 'index.html'
       },
       /**
@@ -136,7 +136,7 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
     },
 
     listeners: {
-      'tab-content-changed': '_onTabContentChanged',
+      'file-content-changed': '_onFileContentChanged',
       'mirror-changed': '_onMirrorChanged'
     },
 
@@ -151,9 +151,9 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
 
     get _fileContents() {
       var fileContents = {};
-      var childTabs = Polymer.dom(this).querySelectorAll('polymer-live-editor-tab');
-      childTabs.forEach(function(tab) {
-        fileContents[tab.tabName] = tab.htmlContent;
+      var childFiles = Polymer.dom(this).querySelectorAll('polymer-live-editor-file');
+      childFiles.forEach(function(file) {
+        fileContents[file.fileName] = file.fileContent;
       }, this);
       return fileContents;
     },
@@ -164,24 +164,24 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
 
     _onMirrorChanged: function(event) {
       this._fromEditor = true;
-      this.displayedContent = event.detail.htmlContent;
-      var selectedTab = this._getSelectedTab();
-      if (selectedTab) {
-        selectedTab.fire('file-contents-changed', {htmlContent: this.displayedContent});
+      this.displayedContent = event.detail.fileContent;
+      var selectedFile = this._getSelectedFile();
+      if (selectedFile) {
+        selectedFile.fire('file-contents-changed', {fileContent: this.displayedContent});
       }
     },
 
-    _onTabContentChanged: function(event) {
+    _onFileContentChanged: function(event) {
       if (event.detail.content) {
-        this.displayedContent = this._fileContents[this.selectedTabName];
+        this.displayedContent = this._fileContents[this.selectedFileName];
         this._updateFrame();
         this._updateMirror();
       }
     },
 
-    _selectedTabNameChanged: function() {
+    _selectedFileNameChanged: function() {
       if (!this._fileContents) return;
-      this.displayedContent = this._fileContents[this.selectedTabName];
+      this.displayedContent = this._fileContents[this.selectedFileName];
       this._fromEditor = false;
       this._updateMirror();
     },
@@ -207,9 +207,9 @@ Each `polymer-live-editor-tab` has a property called `htmlContent`, which can be
       this._updateFrame();
     },
 
-    _getSelectedTab: function() {
-      var demoTabs = this.$.demotabs;
-      return demoTabs.selectedItem;
+    _getSelectedFile: function() {
+      var demoFiles = this.$.demofiles;
+      return demoFiles.selectedItem;
     }
 
   });
