@@ -30,7 +30,7 @@ Example (notice one block inserts code inside a template and one directly edits 
         index.html
       </div>
       <template slot="html-content">
-        <script src="https://polygit.org/components/webcomponentsjs/webcomponents-loader.js"></script>
+        <script src="/bower_components/webcomponentsjs/webcomponents-loader.js"></script>
         <link rel="import" href="custom-element.html">
         <custom-element></custom-element>
       </template>
@@ -38,7 +38,7 @@ Example (notice one block inserts code inside a template and one directly edits 
   </polymer-live-editor>
 
   <script>
-    var htmlContent = `<link rel="import"  href="https://polygit.org/components/polymer/polymer-element.html">
+    var htmlContent = `<link rel="import"  href="/bower_components/polymer/polymer-element.html">
       <script>
         // Define the class for a new element called custom-element
         class CustomElement extends Polymer.Element {
