@@ -22,7 +22,7 @@
       <h3>Basic polymer-live-editor demo</h3>
       <demo-snippet>
         <template>
-          <polymer-live-editor src="http://localhost:3000" selected-tab-name="custom-element.html">
+          <polymer-live-editor src="https://localhost:3000" selected-tab-name="custom-element.html">
             <polymer-live-editor-tab tab-name="custom-element.html" id="customel">
               <div slot="heading">
                 custom-element.html
@@ -35,7 +35,7 @@
               </div>
               <!-- An editor tab's htmlContent can be added in the `html-content` template -->
               <template slot="html-content">
-<script src="https://polygit.org/components/webcomponentsjs/webcomponents-loader.js"></script>
+<script src="/bower_components/webcomponentsjs/webcomponents-loader.js"></script>
 <link rel="import" href="custom-element.html">
 <custom-element></custom-element>
                </template>
@@ -44,20 +44,7 @@
           <script>
             // An editor tab's `htmlContent` property can also be set in JavaScript
             // This will update that tab's `html-content` template automatically
-            var htmlContent = `<link rel="import"  href="https://polygit.org/components/polymer/polymer-element.html">
-
-<script>
-  // Define the class for a new element called custom-element
-  class CustomElement extends Polymer.Element {
-    static get is() { return "custom-element"; }
-    constructor() {
-        super();
-        this.textContent = "I'm a custom-element.";
-      }
-  }
-  // Register the new element with the browser
-  customElements.define(CustomElement.is, CustomElement);
-<\/script>`;
+            var htmlContent = `<!-- TODO: define <custom-element> here -->`;
             document.querySelector('#customel').htmlContent = htmlContent;
           </script>
         </template>
