@@ -186,9 +186,9 @@ Each `polymer-live-editor-file` has a property called `fileContent`, which can b
       _fileContentChanged: function() { 
         if (this._fromEditor && this._template) {
           this._template.innerHTML = this.fileContent;  
-        } else if (!this._fromEditor) {
-          this.fire('file-content-changed', {content: this.fileContent, fileName: this.fileName});
-        }
+        } 
+
+        this.fire('file-content-changed', {content: this.fileContent, fileName: this.fileName, updateMirror: !this._fromEditor});
         this._fromEditor = false;
       },
 

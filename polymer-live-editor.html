@@ -175,7 +175,7 @@ Each `polymer-live-editor-file` has a property called `fileContent`, which can b
       if (event.detail.content) {
         this.displayedContent = this._fileContents[this.selectedFileName];
         this._updateFrame();
-        this._updateMirror();
+        if (event.detail.updateMirror) this._updateMirror();
       }
     },
 
