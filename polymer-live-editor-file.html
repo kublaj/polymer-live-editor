@@ -174,7 +174,7 @@ Each `polymer-live-editor-file` has a property called `fileContent`, which can b
 
       _onSlotChange: function() { 
         if (!this._template || !this._template.innerHTML) return;
-        this._fromSlot = true;
+        this._fromEditor = false;
         this.fileContent = this._template.innerHTML;
       },
 
@@ -186,12 +186,10 @@ Each `polymer-live-editor-file` has a property called `fileContent`, which can b
       _fileContentChanged: function() { 
         if (this._fromEditor && this._template) {
           this._template.innerHTML = this.fileContent;  
-        } 
-        if (this._fromSlot) {
+        } else if (!this._fromEditor) {
           this.fire('file-content-changed', {content: this.fileContent, fileName: this.fileName});
         }
         this._fromEditor = false;
-        this._fromSlot = false;       
       },
 
       _updateNoink: function() {
