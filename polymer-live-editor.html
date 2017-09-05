@@ -167,7 +167,7 @@ Each `polymer-live-editor-file` has a property called `fileContent`, which can b
       this.displayedContent = event.detail.fileContent;
       var selectedFile = this._getSelectedFile();
       if (selectedFile) {
-        selectedFile.fire('file-contents-changed', {fileContent: this.displayedContent});
+        selectedFile.fire('user-edited-file', {fileContent: this.displayedContent});
       }
     },
 
@@ -188,7 +188,10 @@ Each `polymer-live-editor-file` has a property called `fileContent`, which can b
 
     _postMessage: function(content) {  
       if (!this._frameReady) return;
-      this.debounce('postMessage', function () { this.$.frame.contentWindow.postMessage(content, this.src); }.bind(this), 400);
+      
+      this.debounce('postMessage', function () { 
+        this.$.frame.contentWindow.postMessage(content, this.src); 
+      }.bind(this), 400);
     },
 
     _onMessage: function(event) {

@@ -149,21 +149,25 @@ Each `polymer-live-editor-file` has a property called `fileContent`, which can b
 
       listeners: {
         down: '_updateNoink',
-        'file-contents-changed': '_onFileContentsChanged'
+        'user-edited-file': '_onUserEditedFile'
       },
 
       attached: function() {
         this._updateNoink();
-        this._fileContentObserver = new MutationObserver(this._onSlotChange.bind(this));        
+        this._fileContentObserver = new MutationObserver(this._onSlotChange.bind(this));       
+
         this._templateObserver = Polymer.dom(this.$.filecontent).observeNodes(function(mutations) {
+          
           var slot = Polymer.dom(this.$.filecontent); 
           var nodes  = slot.assignedNodes ? slot.assignedNodes({flatten: true}) : slot.getDistributedNodes();
           this._template = nodes.length ? nodes[0] : null;
+
           if (this._template && this._template.content) {
             this._fileContentObserver.disconnect();
             this._fileContentObserver.observe(this._template.content, {attributes: true, childList: true, subtree: true});
             this._onSlotChange();
           }
+
         }.bind(this));
       },
 
@@ -178,7 +182,7 @@ Each `polymer-live-editor-file` has a property called `fileContent`, which can b
         this.fileContent = this._template.innerHTML;
       },
 
-      _onFileContentsChanged: function(event) {
+      _onUserEditedFile: function(event) {
         this._fromEditor = true;
         this.fileContent = event.detail.fileContent;
       },
