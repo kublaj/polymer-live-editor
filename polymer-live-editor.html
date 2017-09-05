@@ -151,10 +151,17 @@ Each `polymer-live-editor-file` has a property called `fileContent`, which can b
 
     get _fileContents() {
       var fileContents = {};
-      var childFiles = Polymer.dom(this).querySelectorAll('polymer-live-editor-file');
-      childFiles.forEach(function(file) {
-        fileContents[file.fileName] = file.fileContent;
-      }, this);
+      var maybeFiles = Polymer.dom(this).children;
+
+      // forEach doesn't work with class HTMLCollection
+      var maybeFile; 
+      for (var nodeIndex = 0; nodeIndex < maybeFiles.length; nodeIndex++) {
+        maybeFile = maybeFiles[nodeIndex];
+        if (maybeFile.hasOwnProperty('fileName')) {
+          fileContents[maybeFile.fileName] = maybeFile.fileContent;
+        }
+      }
+
       return fileContents;
     },
 
@@ -211,8 +218,16 @@ Each `polymer-live-editor-file` has a property called `fileContent`, which can b
     },
 
     _getSelectedFile: function() {
-      var demoFiles = this.$.demofiles;
-      return demoFiles.selectedItem;
+      var maybeFiles = Polymer.dom(this).children;
+
+      var maybeFile; 
+      for (var nodeIndex = 0; nodeIndex < maybeFiles.length; nodeIndex++) {
+        maybeFile = maybeFiles[nodeIndex];
+        if (maybeFile.hasOwnProperty('fileName') && 
+            maybeFile.fileName === this.selectedFileName) {
+          return maybeFile;
+        }
+      }
     }
 
   });
