@@ -1,4 +1,4 @@
-# <polymer-live-editor>
+# `<polymer-live-editor>`
 
 `<polymer-live-editor>` is an inline code editor with a sandboxed previewer supporting multiple files. 
 
